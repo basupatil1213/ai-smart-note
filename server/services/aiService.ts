@@ -20,14 +20,12 @@ export async function generateSummary(content: string) {
 
 export async function generateTags(content: string) {
   const prompt = PromptTemplate.fromTemplate(
-    "Generate 3 short, relevant tags (comma-separated) for this note:\n\n{content}"
+    "Generate 3 short, relevant tags (comma-separated) for this note:\n\n{content} and just return the tags separated by commas"
   );
   const input = await prompt.format({ content });
   const response = await chatModel.invoke(input);
-  return String(response.content)
-  .split(/[,|\n]/)
-  .map(tag => tag.trim())
-  .filter(Boolean);
+  console.log("tags response", response);
+  return String(response.content).trim().split(",");
 }
 
 export async function generateEmbedding(content: string) {
