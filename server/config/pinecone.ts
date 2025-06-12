@@ -1,8 +1,10 @@
 import { Pinecone } from "@pinecone-database/pinecone";
+import dotenv from "dotenv";
+dotenv.config();
 
-const indexName = "notes-index";
+const indexName = process.env.PINECONE_INDEX_NAME as string;
 const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY as string || "pcsk_2gak32_5QyBUW23cgUzn4KPTa2HSjJkDAZczxofzUUf87BZdMYb6WMdWpjpNKCbbMBfUuG",
+  apiKey: process.env.PINECONE_API_KEY as string,
 });
 
 let indexInstance: ReturnType<typeof pinecone.Index> | null = null;
