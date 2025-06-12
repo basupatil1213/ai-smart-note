@@ -1,7 +1,7 @@
 import Note, { type INote } from "../models/Note.ts";
 import { generateSummary, generateTags } from "./aiService.ts";
 import { upsertNote } from "./vectorService.ts";
-import index from "../config/pinecone.ts";
+import { getPineconeIndex } from "../config/pinecone.ts";
 
 export const createNote = async (noteData: INote) => {
     try {
@@ -24,51 +24,48 @@ export const createNote = async (noteData: INote) => {
     }
 }
 
-// get all notes
-export const getAllNotes = async (userId: string) => {
+export const getNote = async (noteId: string) => {
     try {
-        const notes = await Note.find({userId});
-        return notes;
+        const note = await Note.findById(noteId);
+        return note;
     } catch (error) {
-        console.error("Error fetching notes", error);
+        console.error("Error getting note", error);
         throw error;
     }
 }
 
-// update a note
 export const updateNote = async (noteId: string, noteData: INote) => {
     try {
-        const {title, content} = noteData;
-
-        const note = await Note.findByIdAndUpdate(noteId, {title, content}, {new: true});
+        const note = await Note.findByIdAndUpdate(noteId, noteData, {new: true});
         if (!note) throw new Error("Note not found");
+        const {title, content} = noteData;
+        const summary = await generateSummary(content);
+        const tags = await generateTags(content);
+        note.title = title;
+        note.content = content;
+        note.summary = summary;
+        note.tags = tags;
         await upsertNote(note);
         return note;
     } catch (error) {
         console.error("Error updating note", error);
-    }
-}
-
-// delete a note
-export const deleteNote = async (noteId: string) => {
-    try {
-        const note = await Note.findByIdAndDelete(noteId);
-        if (!note) throw new Error("Note not found");
-        await index._deleteOne(noteId);
-    } catch (error) {
-        console.error("Error deleting note", error);
         throw error;
     }
 }
 
-// get a note by id
-export const getNoteById = async (noteId: string) => {
+export const deleteNote = async (noteId: string) => {
     try {
-        const note = await Note.findById(noteId);
+        const index = await getPineconeIndex();
+        const note = await Note.findByIdAndDelete(noteId);
         if (!note) throw new Error("Note not found");
-        return note;
+        if(!index) throw new Error("Pinecone index is not initialized yet. Call initPinecone first.");
+        await index.deleteMany({
+            metadata: {
+                noteId: noteId
+            }
+        });
     } catch (error) {
-        console.error("Error fetching note", error);
+        console.error("Error deleting note", error);
         throw error;
     }
 }

@@ -2,6 +2,7 @@ import express from "express";
 import initalizeRoutes from "./routes/index.ts";
 import connectDB from "./config/db.ts";
 import cors from "cors";
+import { initPinecone } from "./config/pinecone.ts";
 
 const initalizeServer = async (app: express.Application) => {
     try {
@@ -15,6 +16,9 @@ const initalizeServer = async (app: express.Application) => {
 
         // connect to database
         await connectDB();
+
+        // initialize pinecone
+        await initPinecone();
 
     } catch (error) {
         console.error("Error initializing server", error);
