@@ -16,6 +16,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@clerk/express": "^1.6.0",
     "@langchain/core": "^0.3.57",
     "@langchain/ollama": "^0.2.1",
     "@langchain/pinecone": "^0.2.0",

@@ -24,14 +24,20 @@ export const createNote = async (noteData: INote) => {
     }
 }
 
-export const getNote = async (noteId: string) => {
+export const getNote = async (noteId: string, userId: string) => {
     try {
-        const note = await Note.findById(noteId);
+        const note = await Note.findOne({_id: noteId, userId});
+        if (!note) throw new Error("Note not found");
         return note;
     } catch (error) {
         console.error("Error getting note", error);
         throw error;
     }
+}
+
+export const getNotesByUserId = async (userId: string) => {
+    const notes = await Note.find({userId});
+    return notes;   
 }
 
 export const updateNote = async (noteId: string, noteData: INote) => {

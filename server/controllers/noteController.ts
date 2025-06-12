@@ -1,5 +1,6 @@
-import { createNote, deleteNote, getNote, updateNote } from "../services/noteService.ts";
+import { createNote, deleteNote, getNote, getNotesByUserId, updateNote } from "../services/noteService.ts";
 import { type Request, type Response } from "express";
+import { getAuth } from "@clerk/express";
 
 const createNoteController = async (req: Request, res: Response) => {
     try {
@@ -12,10 +13,27 @@ const createNoteController = async (req: Request, res: Response) => {
 
 const getNoteController = async (req: Request, res: Response) => {
     try {
-        const note = await getNote(req.params.id as string);
+        const { userId } = getAuth(req);
+        if (!userId) {
+            return res.status(401).json({error: "Unauthorized"});
+        }
+        const note = await getNote(req.params.id as string, userId);
         res.status(200).json(note);
     } catch (error) {
         res.status(500).json({error: "Failed to get note"});
+    }
+}
+
+const getNotesByUserIdController = async (req: Request, res: Response) => {
+    try {
+        const { userId } = getAuth(req);
+        if (!userId) {
+            return res.status(401).json({error: "Unauthorized"});
+        }
+        const notes = await getNotesByUserId(userId);
+        res.status(200).json(notes);
+    } catch (error) {
+        res.status(500).json({error: "Failed to get notes"});
     }
 }
 
@@ -41,5 +59,6 @@ export {
     createNoteController,
     getNoteController,
     updateNoteController,
-    deleteNoteController
+    deleteNoteController,
+    getNotesByUserIdController
 }
