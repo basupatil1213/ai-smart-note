@@ -1,8 +1,11 @@
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
+import Editor from './components/Editor';
 
 export default function App() {
+  
   return (
-    <header>
+    <>
+    <header className='flex justify-end items-center p-4 hover:underline'>
       <SignedOut>
         <SignInButton />
       </SignedOut>
@@ -10,5 +13,9 @@ export default function App() {
         <UserButton />
       </SignedIn>
     </header>
+    <main className=''>
+      <Editor />
+    </main>
+    </>
   );
 }
